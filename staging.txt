@@ -1,0 +1,2 @@
+This is a branch, let's assume it is a Staging 
+Creating Environment-Specific Branches: staging: Pre-production (STAGING).
