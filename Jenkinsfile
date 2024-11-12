@@ -42,8 +42,8 @@ pipeline {
                     emailext(
                         subject: "Jenkins Job - Docker Image Pushed to ECR Successfully",
                         body: "Hello,\n\nThe Docker image '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins",
-                        recipientProviders: [[$class: 'DevelopersRecipientProvider']],  // This will send to all developers
-                        to: "chinnikrishna2023@gmail.com"  // You can specify the recipients directly
+                        recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                        to: "chinni.kongala@techconsulting.tech"
                     )
                 }
             }
@@ -91,8 +91,9 @@ pipeline {
 
     post {
         always {
-            // Clean up workspace after the build
-            cleanWs()  // This ensures it runs within a valid node context
+            node {  // Ensure cleanWs() runs within a node context
+                cleanWs()
+            }
         }
 
         success {
@@ -100,8 +101,8 @@ pipeline {
             emailext(
                 subject: "Jenkins Pipeline - Build Success",
                 body: "Hello,\n\nThe Jenkins pipeline has completed successfully.\n\nBest regards,\nJenkins",
-                recipientProviders: [[$class: 'DevelopersRecipientProvider']],  // Send to all developers
-                to: "chinnikrishna2023@gmail.com"
+                recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                to: "chinni.kongala@techconsulting.tech"
             )
         }
 
@@ -111,7 +112,7 @@ pipeline {
                 subject: "Jenkins Pipeline - Build Failed",
                 body: "Hello,\n\nThe Jenkins pipeline has failed. Please check the logs for more details.\n\nBest regards,\nJenkins",
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-                to: "chinnikrishna2023@gmail.com"
+                to: "chinni.kongala@techconsulting.tech"
             )
         }
     }
