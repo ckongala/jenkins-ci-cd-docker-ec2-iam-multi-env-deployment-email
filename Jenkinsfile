@@ -91,7 +91,7 @@ pipeline {
 
     post {
         always {
-            node {  // Ensure cleanWs() runs within a node context
+            node('Jenkins-Agent-1') {  // Ensure cleanWs() runs within a node context
                 cleanWs()
             }
         }
