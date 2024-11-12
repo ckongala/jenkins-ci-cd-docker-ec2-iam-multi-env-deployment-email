@@ -92,9 +92,7 @@ pipeline {
     post {
         always {
             // Clean up workspace after the build
-            node {
-                cleanWs()  // This ensures it runs within a valid node context
-            }
+            cleanWs()  // This ensures it runs within a valid node context
         }
 
         success {
