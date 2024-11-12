@@ -11,10 +11,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                script {
-                    // Use 'checkout scm' to check out the code from GitHub
-                    checkout scm
-                }
+                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/ckongala/jenkins-ci-cd-docker-ec2-iam-multi-env-deployment-email.git'
             }
         }
 
@@ -30,13 +27,24 @@ pipeline {
         stage('Push to ECR') {
             steps {
                 script {
-                    // Login to ECR and push the image
+                    // Use IAM role-based authentication to interact with ECR
                     sh """
                     LOGIN_COMMAND=\$(aws ecr get-login-password --region ap-south-1)
                     echo \$LOGIN_COMMAND | docker login --username AWS --password-stdin ${env.ECR_REPO}
                     docker tag chinni81/flaskapp:1.0 ${env.ECR_REPO}:${env.TAG}
                     docker push ${env.ECR_REPO}:${env.TAG}
                     """
+                }
+            }
+            post {
+                success {
+                    // Send email notification after successful image push to ECR
+                    emailext(
+                        subject: "Jenkins Job - Docker Image Pushed to ECR Successfully",
+                        body: "Hello,\n\nThe Docker image '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins",
+                        recipientProviders: [[$class: 'DevelopersRecipientProvider']],  // This will send to all developers
+                        to: "chinnikrishna2023@gmail.com"  // You can specify the recipients directly
+                    )
                 }
             }
         }
@@ -54,7 +62,7 @@ pipeline {
         stage('Container Security Scan - Trivy') {
             steps {
                 script {
-                    // Run Trivy to scan the Docker image for vulnerabilities
+                    // Container security scan with Trivy
                     sh "trivy image ${ECR_REPO}:${TAG}"
                 }
             }
@@ -82,26 +90,28 @@ pipeline {
     }
 
     post {
+        always {
+            // Clean up workspace after the build
+            node {
+                cleanWs()  // This ensures it runs within a valid node context
+            }
+        }
+
         success {
-            // Send email notification after the successful completion of the job
+            // Send email notification after successful build (if not already sent)
             emailext(
-                subject: "Jenkins Job - Docker Image Pushed to ECR Successfully",
-                body: "Hello,\n\nThe Docker image '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins",
-                recipientProviders: [[$class: 'DevelopersRecipientProvider']],
+                subject: "Jenkins Pipeline - Build Success",
+                body: "Hello,\n\nThe Jenkins pipeline has completed successfully.\n\nBest regards,\nJenkins",
+                recipientProviders: [[$class: 'DevelopersRecipientProvider']],  // Send to all developers
                 to: "chinnikrishna2023@gmail.com"
             )
         }
-        
-        always {
-            // Clean up workspace after the build
-            cleanWs()  // This will clean the workspace regardless of the result
-        }
-        
+
         failure {
-            // Optional: Send a failure email if the build fails
+            // Send email notification on failure
             emailext(
-                subject: "Jenkins Job Failed",
-                body: "Hello,\n\nThe Jenkins job has failed during the pipeline execution.\n\nPlease check the Jenkins logs for more details.\n\nBest regards,\nJenkins",
+                subject: "Jenkins Pipeline - Build Failed",
+                body: "Hello,\n\nThe Jenkins pipeline has failed. Please check the logs for more details.\n\nBest regards,\nJenkins",
                 recipientProviders: [[$class: 'DevelopersRecipientProvider']],
                 to: "chinnikrishna2023@gmail.com"
             )
