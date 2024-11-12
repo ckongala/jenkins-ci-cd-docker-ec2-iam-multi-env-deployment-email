@@ -29,9 +29,10 @@ pipeline {
                 script {
                     // Use IAM role-based authentication to interact with ECR
                     sh """
-                    $(aws ecr get-login-password --region ap-south-1) | docker login --username AWS --password-stdin ${env.ECR_REPO}
-                    docker tag chinni81/flaskapp:1.0 ${env.ECR_REPO}:\${env.TAG}
-                    docker push ${env.ECR_REPO}:\${env.TAG}
+                    LOGIN_COMMAND=\$(aws ecr get-login-password --region ap-south-1)
+                    echo \$LOGIN_COMMAND | docker login --username AWS --password-stdin ${env.ECR_REPO}
+                    docker tag chinni81/flaskapp:1.0 ${env.ECR_REPO}:${env.TAG}
+                    docker push ${env.ECR_REPO}:${env.TAG}
                     """
                 }
             }
@@ -62,7 +63,7 @@ pipeline {
             steps {
                 script {
                     // Container security scan with Trivy
-                    sh "trivy image ${ECR_REPO}:\${TAG}"
+                    sh "trivy image ${ECR_REPO}:${TAG}"
                 }
             }
         }
@@ -76,10 +77,10 @@ pipeline {
                     sshagent([SSH_KEY]) {
                         sh """
                         ssh -o StrictHostKeyChecking=no ubuntu@${targetHost} << EOF
-                        docker pull ${ECR_REPO}:\${TAG}
+                        docker pull ${ECR_REPO}:${TAG}
                         docker stop ${IMAGE_NAME} || true
                         docker rm ${IMAGE_NAME} || true
-                        docker run -d --name ${IMAGE_NAME} -p 8000:5000 ${ECR_REPO}:\${TAG}
+                        docker run -d --name ${IMAGE_NAME} -p 8000:5000 ${ECR_REPO}:${TAG}
                         EOF
                         """
                     }
