@@ -56,6 +56,7 @@ pipeline {
                     withSonarQubeEnv('SonarQubeServer') {
                         sh 'mvn sonar:sonar'
                         echo "Static Code Analysis - SonarQube is success"
+                        echo "Static Code Analysis - SonarQube is success"
                     }
                 }
             }
@@ -119,6 +120,8 @@ pipeline {
 
     post {
         always {
+            // Clean workspace after the job completes
+            cleanWs()
             // Clean workspace after the job completes
             cleanWs()
         }
