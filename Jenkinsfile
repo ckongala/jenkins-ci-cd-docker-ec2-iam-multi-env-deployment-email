@@ -12,6 +12,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: "${env.BRANCH_NAME}", url: 'https://github.com/ckongala/jenkins-ci-cd-docker-ec2-iam-multi-env-deployment-email.git'
+                echo "1st stage checkout is success"
             }
         }
 
@@ -22,6 +23,7 @@ pipeline {
                     sh """
                     docker build -t ${env.IMAGE_NAME}:${env.TAG} .
                     """
+                    echo "2nd stage build docker image is success"
                 }
             }
         }
@@ -36,19 +38,19 @@ pipeline {
                     docker tag ${env.IMAGE_NAME}:${env.TAG} ${env.ECR_REPO}:${env.TAG}
                     docker push ${env.ECR_REPO}:${env.TAG}
                     """
+                    echo "3nd stage push to ECR is success"
                 }
             }
-            // post {
-            //     success {
-            //         // Send email notification after successful image push to ECR
-            //         emailext(
-            //             subject: "Jenkins Job - Docker Image Pushed to ECR Successfully",
-            //             body: "Hello,\n\nThe Docker image '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins",
-            //             recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-            //             to: "chinni.kongala@techconsulting.tech"
-            //         )
-            //     }
-            // }
+            post {
+                success {
+                    // Send email notification after successful image push to ECR
+                    emailext(
+                        subject: "Jenkins Job - Docker Image Pushed to ECR Successfully",
+                        body: "Hello,\n\nThe Docker image '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins",
+                        to: "chinni.kongala@techconsulting.tech"
+                    )
+                }
+            }
         }
 
         stage('Static Code Analysis - SonarQube') {
@@ -56,6 +58,7 @@ pipeline {
                 script {
                     withSonarQubeEnv('SonarQubeServer') {
                         sh 'mvn sonar:sonar'
+                        echo "stage Static Code Analysis - SonarQube is success"
                     }
                 }
             }
@@ -66,6 +69,8 @@ pipeline {
                 script {
                     // Container security scan with Trivy
                     sh "trivy image ${ECR_REPO}:${TAG}"
+                    echo "stage Container Security Scan - Trivy is success"
+                    
                 }
             }
         }
@@ -98,24 +103,22 @@ pipeline {
             }
         }
 
-        // success {
-        //     // Send email notification after successful build (if not already sent)
-        //     emailext(
-        //         subject: "Jenkins Pipeline - Build Success",
-        //         body: "Hello,\n\nThe Jenkins pipeline has completed successfully.\n\nBest regards,\nJenkins",
-        //         recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-        //         to: "chinni.kongala@techconsulting.tech"
-        //     )
-        // }
+        success {
+            // Send email notification after successful build (if not already sent)
+            emailext(
+                subject: "Jenkins Pipeline - Build Success",
+                body: "Hello,\n\nThe Jenkins pipeline has completed successfully.\n\nBest regards,\nJenkins",
+                to: "chinni.kongala@techconsulting.tech"
+            )
+        }
 
-        // failure {
-        //     // Send email notification on failure
-        //     emailext(
-        //         subject: "Jenkins Pipeline - Build Failed",
-        //         body: "Hello,\n\nThe Jenkins pipeline has failed. Please check the logs for more details.\n\nBest regards,\nJenkins",
-        //         recipientProviders: [[$class: 'DevelopersRecipientProvider']],
-        //         to: "chinni.kongala@techconsulting.tech"
-        //     )
-        // }
+        failure {
+            // Send email notification on failure
+            emailext(
+                subject: "Jenkins Pipeline - Build Failed",
+                body: "Hello,\n\nThe Jenkins pipeline has failed. Please check the logs for more details.\n\nBest regards,\nJenkins",
+                to: "chinni.kongala@techconsulting.tech"
+            )
+        }
     }
 }
