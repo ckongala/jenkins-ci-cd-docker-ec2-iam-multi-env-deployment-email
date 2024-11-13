@@ -5,18 +5,10 @@ pipeline {
         ECR_REPO = 'public.ecr.aws/y8h2p9f1/chinni/jenkins-ecr'
         IMAGE_NAME = 'flaskapp-jenkins'
         TAG = "${env.BRANCH_NAME}-${env.BUILD_ID}"
-        // SSH_KEY = credentials('ubuntu')  // Name of the SSH key stored in Jenkins credentials
     }
 
     stages {
-        stage('Use Agent Credentials') {
-            steps {
-                withCredentials([string(credentialsId: 'ubuntu', variable: 'ubuntu')]) {
-                    // Replace 'your-credential-id' with the correct ID from Manage Credentials
-                    sh 'echo "Using secret: ${ubuntu}"'
-                }
-            }
-
+        
         stage('Checkout') {
             steps {
                 git branch: "${env.BRANCH_NAME}", url: 'https://github.com/ckongala/jenkins-ci-cd-docker-ec2-iam-multi-env-deployment-email.git'
@@ -27,7 +19,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Pull the Docker image from Docker Hub
+                    // Build the Docker image
                     sh """
                     docker build -t ${env.IMAGE_NAME}:${env.TAG} .
                     """
@@ -46,7 +38,7 @@ pipeline {
                     docker tag ${env.IMAGE_NAME}:${env.TAG} ${env.ECR_REPO}:${env.TAG}
                     docker push ${env.ECR_REPO}:${env.TAG}
                     """
-                    echo "3nd stage push to ECR is success"
+                    echo "3rd stage push to ECR is success"
                 }
             }
             post {
@@ -57,7 +49,7 @@ pipeline {
                     //     body: "Hello,\n\nThe Docker image '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins",
                     //     to: "chinnikrishna2023@gmail.com"
                     // )
-                    echo "post success post-success post-success post-success post-success!!!!"
+                    echo "Post success notification sent!"
                 }
             }
         }
@@ -67,7 +59,7 @@ pipeline {
                 script {
                     withSonarQubeEnv('SonarQubeServer') {
                         sh 'mvn sonar:sonar'
-                        echo "stage Static Code Analysis - SonarQube is success"
+                        echo "Static Code Analysis - SonarQube is success"
                     }
                 }
             }
@@ -77,9 +69,8 @@ pipeline {
             steps {
                 script {
                     // Container security scan with Trivy
-                    sh "trivy image ${ECR_REPO}:${TAG}"
-                    echo "stage Container Security Scan - Trivy is success"
-                    
+                    sh "trivy image ${env.ECR_REPO}:${env.TAG}"
+                    echo "Container Security Scan - Trivy is success"
                 }
             }
         }
@@ -87,19 +78,13 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 script {
-                    def targetHost = '3.110.171.221'  // Replace with the actual EC2 instance IP
-
-                    // Use SSH key to connect to the EC2 instance and deploy
-                    sshagent([SSH_KEY]) {
-                        sh """
-                        ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ubuntu@${targetHost} << EOF
-                        docker pull ${env.ECR_REPO}:${env.TAG}  // Pull the Docker image from ECR
-                        docker stop ${env.IMAGE_NAME} || true  // Stop any running container with the same name
-                        docker rm ${env.IMAGE_NAME} || true  // Remove the old container
-                        docker run -d --name ${env.IMAGE_NAME} -p 8000:5000 ${env.ECR_REPO}:${env.TAG}  // Run the new container
-                        EOF
-                        """
-                    }
+                    // Deploy to EC2 instance
+                    sh """
+                    docker pull ${env.ECR_REPO}:${env.TAG}  // Pull the Docker image from ECR
+                    docker stop ${env.IMAGE_NAME} || true  // Stop any running container with the same name
+                    docker rm ${env.IMAGE_NAME} || true  // Remove the old container
+                    docker run -d --name ${env.IMAGE_NAME} -p 8000:5000 ${env.ECR_REPO}:${env.TAG}  // Run the new container
+                    """
                 }
             }
         }
@@ -107,9 +92,8 @@ pipeline {
 
     post {
         always {
-            node('Jenkins-Agent-1') {  // Ensure cleanWs() runs within a node context
-                cleanWs()
-            }
+            // Clean workspace after the job completes
+            cleanWs()
         }
 
         success {
@@ -119,7 +103,7 @@ pipeline {
             //     body: "Hello,\n\nThe Jenkins pipeline has completed successfully.\n\nBest regards,\nJenkins",
             //     to: "chinnikrishna2023@gmail.com"
             // )
-            echo "success success success success success!!!! "
+            echo "Pipeline completed successfully!"
         }
 
         failure {
@@ -129,7 +113,7 @@ pipeline {
             //     body: "Hello,\n\nThe Jenkins pipeline has failed. Please check the logs for more details.\n\nBest regards,\nJenkins",
             //     to: "chinnikrishna2023@gmail.com"
             // )
-            echo "failure failure failure failure failure!!!! "
+            echo "Pipeline failed!"
         }
     }
 }
