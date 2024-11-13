@@ -30,13 +30,11 @@ pipeline {
         stage('Push to ECR') {
             steps {
                 script {
-                    // Authenticate to AWS ECR and push the Docker image
-                    sh """
-                    LOGIN_COMMAND=\$(aws ecr get-login-password --region ap-south-1)
-                    echo \$LOGIN_COMMAND | docker login --username AWS --password-stdin ${env.ECR_REPO}
-                    docker push ${env.ECR_REPO}:${env.TAG}
-                    echo "Docker image pushed to ECR successfully"
-                    """
+                    // Log in to ECR using the instance profile attached to the EC2 instance
+                    sh "aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${env.ECR_REPO}"
+                
+                    // Push the Docker image to ECR with the branch-specific tag
+                    sh "docker push ${env.ECR_REPO}:${env.TAG}"
                     
                 }
             }
