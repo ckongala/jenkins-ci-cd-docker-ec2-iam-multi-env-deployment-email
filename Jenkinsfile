@@ -44,11 +44,11 @@ pipeline {
             post {
                 success {
                     // Send email notification after successful image push to ECR
-                    emailext(
-                        subject: "Jenkins Job - Docker Image Pushed to ECR Successfully",
-                        body: "Hello,\n\nThe Docker image '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins",
-                        to: "chinnikrishna2023@gmail.com"
-                    )
+                    // emailext(
+                    //     subject: "Jenkins Job - Docker Image Pushed to ECR Successfully",
+                    //     body: "Hello,\n\nThe Docker image '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins",
+                    //     to: "chinnikrishna2023@gmail.com"
+                    // )
                 }
             }
         }
@@ -105,20 +105,20 @@ pipeline {
 
         success {
             // Send email notification after successful build (if not already sent)
-            emailext(
-                subject: "Jenkins Pipeline - Build Success",
-                body: "Hello,\n\nThe Jenkins pipeline has completed successfully.\n\nBest regards,\nJenkins",
-                to: "chinnikrishna2023@gmail.com"
-            )
+            // emailext(
+            //     subject: "Jenkins Pipeline - Build Success",
+            //     body: "Hello,\n\nThe Jenkins pipeline has completed successfully.\n\nBest regards,\nJenkins",
+            //     to: "chinnikrishna2023@gmail.com"
+            // )
         }
 
         failure {
             // Send email notification on failure
-            emailext(
-                subject: "Jenkins Pipeline - Build Failed",
-                body: "Hello,\n\nThe Jenkins pipeline has failed. Please check the logs for more details.\n\nBest regards,\nJenkins",
-                to: "chinnikrishna2023@gmail.com"
-            )
+            // emailext(
+            //     subject: "Jenkins Pipeline - Build Failed",
+            //     body: "Hello,\n\nThe Jenkins pipeline has failed. Please check the logs for more details.\n\nBest regards,\nJenkins",
+            //     to: "chinnikrishna2023@gmail.com"
+            // )
         }
     }
 }
