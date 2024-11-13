@@ -47,7 +47,7 @@ pipeline {
                     emailext(
                         subject: "Jenkins Job - Docker Image Pushed to ECR Successfully",
                         body: "Hello,\n\nThe Docker image '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins",
-                        to: "chinni.kongala@techconsulting.tech"
+                        to: "chinnikrishna2023@gmail.com"
                     )
                 }
             }
@@ -108,7 +108,7 @@ pipeline {
             emailext(
                 subject: "Jenkins Pipeline - Build Success",
                 body: "Hello,\n\nThe Jenkins pipeline has completed successfully.\n\nBest regards,\nJenkins",
-                to: "chinni.kongala@techconsulting.tech"
+                to: "chinnikrishna2023@gmail.com"
             )
         }
 
@@ -117,7 +117,7 @@ pipeline {
             emailext(
                 subject: "Jenkins Pipeline - Build Failed",
                 body: "Hello,\n\nThe Jenkins pipeline has failed. Please check the logs for more details.\n\nBest regards,\nJenkins",
-                to: "chinni.kongala@techconsulting.tech"
+                to: "chinnikrishna2023@gmail.com"
             )
         }
     }
