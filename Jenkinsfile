@@ -7,14 +7,14 @@ pipeline {
         TAG = "${env.BRANCH_NAME}-${env.BUILD_ID}"
         PORT = "${env.BRANCH_NAME == 'dev' ? '5001' : (env.BRANCH_NAME == 'staging' ? '5002' : '5003')}"
         CONTAINER_NAME = "${IMAGE_NAME}-${env.BRANCH_NAME}"
-        // SSH_KEY = credentials('ubuntu')  // Uncomment if using an SSH key for EC2
+        AWS_REGION = 'ap-south-1'  // Ensure region is defined if needed in other steps
     }
 
     stages {
         stage('Checkout') {
             steps {
                 git branch: "${env.BRANCH_NAME}", url: 'https://github.com/ckongala/jenkins-ci-cd-docker-ec2-iam-multi-env-deployment-email.git'
-                echo "1st stage checkout is success"
+                echo "Checkout completed successfully"
             }
         }
 
@@ -23,7 +23,7 @@ pipeline {
                 script {
                     // Build Docker image
                     sh "docker build -t ${env.ECR_REPO}:${env.TAG} ."
-                    echo "2nd stage build docker image is success"
+                    echo "Docker image build completed successfully"
                 }
             }
         }
@@ -32,9 +32,9 @@ pipeline {
             steps {
                 script {
                     // Authenticate to AWS ECR and push the Docker image
-                    sh "aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${env.ECR_REPO}"
+                    sh "aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin ${env.ECR_REPO}"
                     sh "docker push ${env.ECR_REPO}:${env.TAG}"
-                    echo "3rd stage push to ECR is success"
+                    echo "Docker image pushed to ECR successfully"
                 }
             }
             post {
@@ -45,7 +45,7 @@ pipeline {
                         body: "Hello,\n\nThe Docker image '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins",
                         to: "chinnikrishna2023@gmail.com"
                     )
-                    echo "Post success notification sent!"
+                    echo "Success email notification sent!"
                 }
             }
         }
@@ -55,8 +55,7 @@ pipeline {
                 script {
                     withSonarQubeEnv('SonarQubeServer') {
                         sh 'mvn sonar:sonar'
-                        echo "Static Code Analysis - SonarQube is success"
-                        echo "Static Code Analysis - SonarQube is success"
+                        echo "Static code analysis with SonarQube completed successfully"
                     }
                 }
             }
@@ -67,7 +66,7 @@ pipeline {
                 script {
                     // Run container security scan with Trivy
                     sh "trivy image ${env.ECR_REPO}:${env.TAG}"
-                    echo "Container Security Scan - Trivy is success"
+                    echo "Container security scan completed successfully"
                 }
             }
         }
@@ -120,8 +119,6 @@ pipeline {
 
     post {
         always {
-            // Clean workspace after the job completes
-            cleanWs()
             // Clean workspace after the job completes
             cleanWs()
         }
