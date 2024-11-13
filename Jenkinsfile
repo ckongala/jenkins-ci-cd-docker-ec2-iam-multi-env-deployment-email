@@ -5,10 +5,18 @@ pipeline {
         ECR_REPO = 'public.ecr.aws/y8h2p9f1/chinni/jenkins-ecr'
         IMAGE_NAME = 'flaskapp-jenkins'
         TAG = "${env.BRANCH_NAME}-${env.BUILD_ID}"
-        SSH_KEY = credentials('ubuntu')  // Name of the SSH key stored in Jenkins credentials
+        // SSH_KEY = credentials('ubuntu')  // Name of the SSH key stored in Jenkins credentials
     }
 
     stages {
+        stage('Use Agent Credentials') {
+            steps {
+                withCredentials([string(credentialsId: 'ubuntu', variable: 'ubuntu')]) {
+                    // Replace 'your-credential-id' with the correct ID from Manage Credentials
+                    sh 'echo "Using secret: ${ubuntu}"'
+                }
+            }
+
         stage('Checkout') {
             steps {
                 git branch: "${env.BRANCH_NAME}", url: 'https://github.com/ckongala/jenkins-ci-cd-docker-ec2-iam-multi-env-deployment-email.git'
