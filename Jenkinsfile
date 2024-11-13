@@ -49,6 +49,7 @@ pipeline {
                     //     body: "Hello,\n\nThe Docker image '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins",
                     //     to: "chinnikrishna2023@gmail.com"
                     // )
+                    echo "post success post-success post-success post-success post-success!!!!"
                 }
             }
         }
@@ -110,6 +111,7 @@ pipeline {
             //     body: "Hello,\n\nThe Jenkins pipeline has completed successfully.\n\nBest regards,\nJenkins",
             //     to: "chinnikrishna2023@gmail.com"
             // )
+            echo "success success success success success!!!! "
         }
 
         failure {
@@ -119,6 +121,7 @@ pipeline {
             //     body: "Hello,\n\nThe Jenkins pipeline has failed. Please check the logs for more details.\n\nBest regards,\nJenkins",
             //     to: "chinnikrishna2023@gmail.com"
             // )
+            echo "failure failure failure failure failure!!!! "
         }
     }
 }
