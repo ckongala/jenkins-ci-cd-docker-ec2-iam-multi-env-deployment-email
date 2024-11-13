@@ -2,12 +2,11 @@ pipeline {
     agent { label 'Jenkins-Agent-1' }
 
     environment {
-        ECR_REPO = 'public.ecr.aws/y8h2p9f1/chinni/jenkins-ecr'
+        ECR_REPO = '866934333672.dkr.ecr.ap-south-1.amazonaws.com/chinni/jenkins'
         IMAGE_NAME = 'flaskapp-jenkins'
         TAG = "${env.BRANCH_NAME}-${env.BUILD_ID}"
         PORT = "${env.BRANCH_NAME == 'dev' ? '5001' : (env.BRANCH_NAME == 'staging' ? '5002' : '5003')}"
         CONTAINER_NAME = "${IMAGE_NAME}-${env.BRANCH_NAME}"
-        AWS_REGION = 'ap-south-1'  // Ensure region is defined if needed in other steps
     }
 
     stages {
@@ -32,18 +31,23 @@ pipeline {
             steps {
                 script {
                     // Authenticate to AWS ECR and push the Docker image
-                    sh "aws ecr get-login-password --region ${env.AWS_REGION} | docker login --username AWS --password-stdin ${env.ECR_REPO}"
-                    sh "docker push ${env.ECR_REPO}:${env.TAG}"
+                    sh """
+                    LOGIN_COMMAND=\$(aws ecr get-login-password --region ap-south-1)
+                    echo \$LOGIN_COMMAND | docker login --username AWS --password-stdin ${env.ECR_REPO}
+                    docker push ${env.ECR_REPO}:${env.TAG}
                     echo "Docker image pushed to ECR successfully"
+                    """
+                    
                 }
             }
             post {
                 success {
                     // Send email notification after successful image push to ECR
-                    emailext(
+                    mail(
+                        to: "chinnikrishna2023@gmail.com"
                         subject: "Jenkins Job - Docker Image Pushed to ECR Successfully",
                         body: "Hello,\n\nThe Docker image '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins",
-                        to: "chinnikrishna2023@gmail.com"
+                        
                     )
                     echo "Success email notification sent!"
                 }
@@ -125,20 +129,20 @@ pipeline {
 
         success {
             // Send email notification after successful build
-            emailext(
+            mail(
+                to: "chinnikrishna2023@gmail.com"
                 subject: "Jenkins Pipeline - Build Success",
                 body: "Hello,\n\nThe Jenkins pipeline has completed successfully.\n\nBest regards,\nJenkins",
-                to: "chinnikrishna2023@gmail.com"
             )
             echo "Pipeline completed successfully!"
         }
 
         failure {
             // Send email notification on failure
-            emailext(
+            mail(
+                to: "chinnikrishna2023@gmail.com"
                 subject: "Jenkins Pipeline - Build Failed",
                 body: "Hello,\n\nThe Jenkins pipeline has failed. Please check the logs for more details.\n\nBest regards,\nJenkins",
-                to: "chinnikrishna2023@gmail.com"
             )
             echo "Pipeline failed!"
         }
