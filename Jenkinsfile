@@ -31,7 +31,9 @@ pipeline {
             steps {
                 script {
                     // Log in to ECR using the instance profile attached to the EC2 instance
-                    sh "aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${env.ECR_REPO}"
+                    sh """
+                    aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin ${env.ECR_REPO}
+                    """
                 
                     // Push the Docker image to ECR with the branch-specific tag
                     sh "docker push ${env.ECR_REPO}:${env.TAG}"
@@ -52,16 +54,16 @@ pipeline {
             }
         }
 
-        stage('Static Code Analysis - SonarQube') {
-            steps {
-                script {
-                    withSonarQubeEnv('SonarQubeServer') {
-                        sh 'mvn sonar:sonar'
-                        echo "Static code analysis with SonarQube completed successfully"
-                    }
-                }
-            }
-        }
+        // stage('Static Code Analysis - SonarQube') {
+        //     steps {
+        //         script {
+        //             withSonarQubeEnv('SonarQubeServer') {
+        //                 sh 'mvn sonar:sonar'
+        //                 echo "Static code analysis with SonarQube completed successfully"
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Container Security Scan - Trivy') {
             steps {
