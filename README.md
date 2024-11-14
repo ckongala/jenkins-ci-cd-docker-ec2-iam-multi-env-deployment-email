@@ -89,18 +89,18 @@ Access Jenkins via `http://<Jenkins-Master-EC2-Public-IP>:8080` and complete the
 5. Added the Jenkins Slave in the Jenkins UI:
    - Manage Jenkins > Manage Nodes and Clouds > New Node.
    - Configured with SSH launch method and provided SSH private key credentials.
-   ```
-  i install docker and java and all other necesry tools for trobleshooting, 
-  in master i created a jenkins container that is runing on 8080 port of aster, 
-  so i docker exec -it into container and creatd a SSH key gen 
-  i copied that public key into the slave and then try to ssh from inside docker to slave it's working fine, 
-  so now i set-up the all the stuff, related to jenkins and now i cretaed a created a node inside the jeniks, to SSH my jenkins into my slave ec2 instance,
-  below how i configure 
-  name > remote root directory /home/ubuntu/ or /home/ec2-user/ usage :use this as much as possible >
-  lauch method, laucnh aget via SSH, HOST ad Slave Ip address, 
-  credientials( add copy the rsa (private key generated form jenkins container from master ec2 instance)
-  remainig as default.
-  ```
+      ```
+     i install docker and java and all other necesry tools for trobleshooting, 
+     in master i created a jenkins container that is runing on 8080 port of aster, 
+     so i docker exec -it into container and creatd a SSH key gen 
+     i copied that public key into the slave and then try to ssh from inside docker to slave it's working fine, 
+     so now i set-up the all the stuff, related to jenkins and now i cretaed a created a node inside the jeniks, to SSH my jenkins into my slave ec2 instance,
+     below how i configure 
+     name > remote root directory /home/ubuntu/ or /home/ec2-user/ usage :use this as much as possible >
+     lauch method, laucnh aget via SSH, HOST ad Slave Ip address, 
+     credientials( add copy the rsa (private key generated form jenkins container from master ec2 instance)
+     remainig as default.
+     ```
 
 ### IAM Role Configuration
 
@@ -113,14 +113,14 @@ Created an IAM role (`Jenkins-EC2-Role`) with:
 
 Configured Jenkins for email notifications using the Email Extension Plugin:
 - Configured SMTP server settings in Jenkins to use `smtp.gmail.com` with TLS and port 587.
-```
-first make sure that your gmail has two step authenticaion and, create a new  app password, with random name, and take the password only show only once,
-Jenkins Dashboard > Manage Jenkins > Configure System. 
-setup of SMTp;
-server name as smtp.gamil.com > uses user and password, user as email_id; and password as generated password from app password, 
-uses TLS and port as 587, and verify test, it's working fine.
-Save Settings.
-```
+   ```
+   first make sure that your gmail has two step authenticaion and, create a new  app password, with random name, and take the password only show only once,
+   Jenkins Dashboard > Manage Jenkins > Configure System. 
+   setup of SMTp;
+   server name as smtp.gamil.com > uses user and password, user as email_id; and password as generated password from app password, 
+   uses TLS and port as 587, and verify test, it's working fine.
+   Save Settings.
+   ```
 
 ## Jenkins Pipeline (Jenkinsfile)
 
@@ -130,17 +130,17 @@ The `Jenkinsfile` contains a multi-branch pipeline script that automates:
 - **Push:** Pushes the built image to Amazon ECR.
 - **Test:** Deploys the Docker container and runs tests.
 - **Deploy:** Deploys the application on production if the `main` branch is triggered.
-```
-Step 4.3: Create Multi-Branch Pipeline in Jenkins
-Create Multi-Branch Pipeline Job:
-Go to Jenkins Dashboard > New Item and select Multi-branch Pipeline.
-Name it MyApp-MultiBranch-Pipeline and click OK.
-Configure GitHub Repository and Branches:
-In Branch Sources, add GitHub and specify the repository URL.
-Configure branch patterns to detect dev, staging, and main.
-Specify Jenkinsfile Location:
-Under Build Configuration, set it to by Jenkinsfile.
-```
+   ```
+   Step 4.3: Create Multi-Branch Pipeline in Jenkins
+   Create Multi-Branch Pipeline Job:
+   Go to Jenkins Dashboard > New Item and select Multi-branch Pipeline.
+   Name it MyApp-MultiBranch-Pipeline and click OK.
+   Configure GitHub Repository and Branches:
+   In Branch Sources, add GitHub and specify the repository URL.
+   Configure branch patterns to detect dev, staging, and main.
+   Specify Jenkinsfile Location:
+   Under Build Configuration, set it to by Jenkinsfile.
+   ```
 
 ```groovy
 pipeline {
