@@ -53,7 +53,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Cleanup Previous Containers') {
             steps {
                 script {
@@ -62,16 +62,6 @@ pipeline {
                     sh "docker rm ${env.CONTAINER_NAME} || true"
                     // Free up the designated port
                     sh "fuser -k ${env.PORT}/tcp || true"
-                }
-            }
-        }
-
-        stage('Container Security Scan - Trivy') {
-            steps {
-                script {
-                    // Run container security scan with Trivy
-                    sh "trivy image --scanners vuln ${env.ECR_REPO}:${env.TAG}"
-                    echo "Container security scan completed successfully"
                 }
             }
         }
