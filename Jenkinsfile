@@ -44,7 +44,7 @@ pipeline {
                 success {
                     // Send email notification after successful image push to ECR
                     mail(
-                        to: "chinnikrishna2023@gmail.com",
+                        to: "m.ehtasham.azhar@gmail.com",
                         subject: "Jenkins Job - Docker Image Pushed to ECR Successfully",
                         body: "Hello,\n\nThe Docker image '${env.IMAGE_NAME}:${env.TAG}' has been successfully pushed to ECR.\n\nBest regards,\nJenkins",
                         
@@ -109,7 +109,7 @@ pipeline {
         success {
             // Send email notification after successful build
             mail(
-                to: "chinnikrishna2023@gmail.com",
+                to: "m.ehtasham.azhar@gmail.com",
                 subject: "Jenkins Pipeline - Build Success",
                 body: "Hello,\n\nThe Jenkins pipeline has completed successfully.\n\nBest regards,\nJenkins",
             )
