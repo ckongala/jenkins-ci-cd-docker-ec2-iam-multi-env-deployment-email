@@ -1,2 +1,22 @@
 This is a branch, let's assume it is a dev 
 Creating Environment-Specific Branches: dev: Development (DEV).
+
+stage('Static Code Analysis - SonarQube') {
+    steps {
+        script {
+            withSonarQubeEnv('SonarQubeServer') {
+                sh 'mvn sonar:sonar'
+                echo "Static code analysis with SonarQube completed successfully"
+            }
+        }
+    }
+}
+stage('Container Security Scan - Trivy') {
+    steps {
+        script {
+            // Run container security scan with Trivy
+            sh "trivy image --scanners vuln ${env.ECR_REPO}:${env.TAG}"
+            echo "Container security scan completed successfully"
+        }
+    }
+}
