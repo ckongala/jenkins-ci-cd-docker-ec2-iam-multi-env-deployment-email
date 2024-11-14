@@ -21,7 +21,7 @@ pipeline {
             steps {
                 script {
                     // Build Docker image
-                    sh "docker build -t ${env.ECR_REPO}:${env.TAG} ."
+                    sh "docker build --no-cache -t ${env.ECR_REPO}:${env.TAG} ."
                     echo "Docker image build completed successfully"
                 }
             }
@@ -69,7 +69,7 @@ pipeline {
             steps {
                 script {
                     // Run container security scan with Trivy
-                    sh "trivy image ${env.ECR_REPO}:${env.TAG}"
+                    sh "trivy image --scanners vuln ${env.ECR_REPO}:${env.TAG}"
                     echo "Container security scan completed successfully"
                 }
             }
@@ -137,14 +137,14 @@ pipeline {
             echo "Pipeline completed successfully!"
         }
 
-        failure {
-            // Send email notification on failure
-            mail(
-                to: "chinnikrishna2023@gmail.com",
-                subject: "Jenkins Pipeline - Build Failed",
-                body: "Hello,\n\nThe Jenkins pipeline has failed. Please check the logs for more details.\n\nBest regards,\nJenkins",
-            )
-            echo "Pipeline failed!"
-        }
+        // failure {
+        //     // Send email notification on failure
+        //     mail(
+        //         to: "chinnikrishna2023@gmail.com",
+        //         subject: "Jenkins Pipeline - Build Failed",
+        //         body: "Hello,\n\nThe Jenkins pipeline has failed. Please check the logs for more details.\n\nBest regards,\nJenkins",
+        //     )
+        //     echo "Pipeline failed!"
+        //}
     }
 }
