@@ -1,17 +1,6 @@
 Below I have attached a file, 
 it will covers all the basic concept to know and get started with jenkins.
 ```
-git restore <filename> ==> removes the files from the working area
-git restore --staged <filename> ==> remove the file from stagging and send back tot he working area
-git rm --cached <filename> ==> removes the file from the stagingarea and sent back to the working area
-
-
-git revert <Hash>  ==> Create a new commit, taht were made on the commit that we specified, (Exactly all the opposite change to the original commit)
-						if you want to undo changes, and kepp those changes in you git history.
-git reset --soft HEAD~1 ==> To delete the last commit and bring the changes back to the staging area(Files are exist in working area, still has access to  the files) and point to the2nd latest commit.
-git reset --hard HEAD~1 ==> To delete the last commit(No more file associated with latest commit) point to the 2nd latest commit.
-
-
 :::Jenkins:::
 
 Jobs ==>
